@@ -1,0 +1,108 @@
+<x-app-layout>
+    <div class="max-w-4xl mx-auto py-6 px-4 space-y-6">
+        <h1 class="text-2xl font-bold">📊 Dashboard Analytics</h1>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div class="bg-white shadow p-4 rounded">
+                <p class="text-gray-500">Total Dresses</p>
+                <p class="text-xl font-bold">{{ $total }}</p>
+            </div>
+            <div class="bg-white shadow p-4 rounded">
+                <p class="text-gray-500">Sold</p>
+                <p class="text-xl font-bold text-red-600">{{ $sold }}</p>
+            </div>
+            <div class="bg-white shadow p-4 rounded">
+                <p class="text-gray-500">Available</p>
+                <p class="text-xl font-bold text-green-600">{{ $available }}</p>
+            </div>
+            <div class="bg-white shadow p-4 rounded">
+                <p class="text-gray-500">Capital in Stock</p>
+                <p class="text-xl font-bold">Ksh {{ number_format($capital, 0) }}</p>
+            </div>
+            <div class="bg-white shadow p-4 rounded">
+                <p class="text-gray-500">Expected Revenue</p>
+                <p class="text-xl font-bold">Ksh {{ number_format($expectedRevenue, 0) }}</p>
+            </div>
+            <div class="bg-white shadow p-4 rounded">
+                <p class="text-gray-500">Total Profit</p>
+                <p class="text-xl font-bold text-blue-700">Ksh {{ number_format($profit, 0) }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+            <div class="bg-blue-100 shadow p-4 rounded">
+                <p class="text-blue-800 font-semibold">📅 Today</p>
+                <p class="text-lg font-bold text-blue-900">Ksh {{ number_format($dailyProfit, 0) }}</p>
+            </div>
+            <div class="bg-green-100 shadow p-4 rounded">
+                <p class="text-green-800 font-semibold">🗓️ This Week</p>
+                <p class="text-lg font-bold text-green-900">Ksh {{ number_format($weeklyProfit, 0) }}</p>
+            </div>
+            <div class="bg-purple-100 shadow p-4 rounded">
+                <p class="text-purple-800 font-semibold">📆 This Month</p>
+                <p class="text-lg font-bold text-purple-900">Ksh {{ number_format($monthlyProfit, 0) }}</p>
+            </div>
+        </div>
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="font-semibold mb-2">📊 Dresses Sold Per Day</h2>
+                <canvas id="salesChart" height="200"></canvas>
+            </div>
+
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="font-semibold mb-2">📈 Daily Profit Trend</h2>
+                <canvas id="profitChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const salesCtx = document.getElementById('salesChart');
+    const profitCtx = document.getElementById('profitChart');
+
+    const salesChart = new Chart(salesCtx, {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($dailySales->pluck('date')->values()) !!},
+            datasets: [{
+                label: 'Dresses Sold',
+                data: {!! json_encode($dailySales->pluck('count')->values()) !!},
+                backgroundColor: '#4f46e5'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    const profitChart = new Chart(profitCtx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($dailyProfitData->pluck('date')->values()) !!},
+            datasets: [{
+                label: 'Daily Profit (Ksh)',
+                data: {!! json_encode($dailyProfitData->pluck('profit')->values()) !!},
+                borderColor: '#22c55e',
+                fill: false,
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+});
+</script>
+
+
+
+</x-app-layout>
