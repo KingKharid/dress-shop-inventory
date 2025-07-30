@@ -35,4 +35,7 @@ RUN npm install && npm run build
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
+php artisan config:clear
+php artisan config:cache
+
 EXPOSE 80
