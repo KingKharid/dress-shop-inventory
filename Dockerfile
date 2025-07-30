@@ -32,5 +32,8 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
+# Run migrations automatically
+RUN php artisan migrate --force
+
 # Expose port 80
 EXPOSE 80
