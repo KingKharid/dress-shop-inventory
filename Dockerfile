@@ -1,18 +1,18 @@
 FROM php:8.2-apache
 
-# System deps
+# System dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev unzip zip git curl gnupg2 \
     && docker-php-ext-install pdo_pgsql
 
-# Install Node.js LTS + npm
+# Install Node.js (LTS)
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs
 
-# Enable Apache rewrite
+# Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Copy Apache config
+# Copy custom Apache config
 COPY ./apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
 # Set working directory
@@ -28,10 +28,10 @@ RUN curl -sS https://getcomposer.org/installer | php \
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Install Node dependencies and build Vite assets
+# Install Node dependencies and build frontend
 RUN npm install && npm run build
 
-# Set permissions
+# Set correct permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
