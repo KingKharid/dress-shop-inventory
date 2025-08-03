@@ -59,9 +59,42 @@
     
 
     <script>
-document.addEventListener('DOMContentLoaded', function () {
+async function initializeCharts() {
+    // Ensure Chart.js is loaded
+    const Chart = await window.loadChartJS();
+    
     const salesCtx = document.getElementById('salesChart');
     const profitCtx = document.getElementById('profitChart');
+
+    // Optimize chart configuration for better performance
+    const defaultOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 750, // Reduced animation time
+        },
+        interaction: {
+            intersect: false,
+        },
+        plugins: {
+            legend: {
+                display: false, // Hide legend to save space
+            }
+        },
+        scales: {
+            y: { 
+                beginAtZero: true,
+                grid: {
+                    display: false, // Remove grid for cleaner look
+                }
+            },
+            x: {
+                grid: {
+                    display: false,
+                }
+            }
+        }
+    };
 
     const salesChart = new Chart(salesCtx, {
         type: 'bar',
@@ -70,13 +103,21 @@ document.addEventListener('DOMContentLoaded', function () {
             datasets: [{
                 label: 'Dresses Sold',
                 data: {!! json_encode($dailySales->pluck('count')->values()) !!},
-                backgroundColor: '#4f46e5'
+                backgroundColor: '#4f46e5',
+                borderRadius: 4,
+                borderSkipped: false,
             }]
         },
         options: {
-            responsive: true,
+            ...defaultOptions,
             scales: {
-                y: { beginAtZero: true }
+                ...defaultOptions.scales,
+                y: {
+                    ...defaultOptions.scales.y,
+                    ticks: {
+                        stepSize: 1, // Ensure integer steps for dress count
+                    }
+                }
             }
         }
     });
@@ -89,18 +130,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 label: 'Daily Profit (Ksh)',
                 data: {!! json_encode($dailyProfitData->pluck('profit')->values()) !!},
                 borderColor: '#22c55e',
-                fill: false,
-                tension: 0.2
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointHoverRadius: 5,
             }]
         },
-        options: {
-            responsive: true,
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
+        options: defaultOptions
     });
-});
+}
+
+// Initialize charts when DOM is ready and Chart.js is loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeCharts);
+} else {
+    initializeCharts();
+}
 </script>
 
 
